@@ -1,4 +1,3 @@
-/*
 class Queue {
     constructor() {
         this.items = [];
@@ -41,27 +40,24 @@ function miro(x,y,rowSize,colSize,map,visited) {
     let dy = [0, 0, -1, 1];
 
     let queue = new Queue();
-    let length = 0;
     let isOpen = false;
     //시작지점을 큐에 넣고 시작
-    queue.enqueue([x, y]);
+    queue.enqueue([x, y, 0]);
 
     // 큐가 전부 빌때 까지
     while( !queue.isEmpty()) {
-        let [x, y] = queue.dequeue();
+        let [x, y, length] = queue.dequeue();
 
         // 레버 위치에 도착했는가? 레버 위치를 시작지점으로 해서 다시 bfs
         if ( map[x][y] === 'L') {
             isOpen = true;
-            // visited = Array.from(Array(rowSize), () => new Array(colSize).fill(false));
+            visited = Array.from(Array(rowSize), () => new Array(colSize).fill(false));
 
             // 방문 표시 배열에 시작지점 체크
             visited[x][y] = true;
 
             // 큐 초기화
             queue = new Queue();
-
-            // length = 0;
         }
 
         if ( isOpen && map[x][y] === 'E') {
@@ -85,8 +81,7 @@ function miro(x,y,rowSize,colSize,map,visited) {
             // 처음 방문했다 == false 다 == 방문처리
             if ( visited[nx][ny] == false) {
                 visited[nx][ny] = true
-                length++;
-                queue.enqueue([nx, ny]);
+                queue.enqueue([nx, ny, length + 1]);
             }
         }
     }
@@ -128,70 +123,5 @@ function solution(maps) {
     
     return result;
 }
-*/
-
-function solution(maps) {
-    const MAX_R = maps.length;
-    const MAX_C = maps[0].length;
-    const dx = [1, 0, -1, 0];
-    const dy = [0, 1, 0, -1];
-    let start = [0, 0];
-    let queue = new Queue();
-    let visited = maps.map((v, row) => {
-        if (v.includes('S')) {
-            const col = v.indexOf('S');
-            start = [row, col];
-        }
-        return Array.from({ length: v.length }, () => false)
-    });
-
-    visited[start[0]][start[1]] = true;
-    queue.enqueue({ row: start[0], col: start[1], length: 0, open: false });
 
 
-    while (!queue.isEmpty()) {
-        let { row, col, length, open } = queue.dequeue();
-        if (maps[row][col] === 'L') {
-            visited = maps.map(v => Array.from({ length: v.length }, () => false));
-            visited[row][col] = true;
-            open = true;
-            queue = new Queue();
-        }
-        if (open && maps[row][col] === 'E') {
-            return length;
-        }
-
-        for (let i = 0; i < 4; i++) {
-            const nr = row + dy[i];
-            const nc = col + dx[i];
-            if (nr > -1 && nc > -1 && nr < MAX_R && nc < MAX_C && !visited[nr][nc] && maps[nr][nc] !== 'X') {
-                visited[nr][nc] = true;
-                queue.enqueue({ row: nr, col: nc, length: length + 1, open });
-            }
-        }
-    }
-
-    return -1;
-}
-
-class Queue {
-    constructor() {
-        this.queue = [];
-        this.front = 0;
-        this.rear = 0;
-    }
-
-    enqueue(val) {
-        this.queue[this.rear++] = val;
-    }
-
-    dequeue() {
-        const val = this.queue[this.front];
-        delete this.queue[this.front++];
-        return val;
-    }
-
-    isEmpty() {
-        return this.rear === this.front;
-    }
-}
